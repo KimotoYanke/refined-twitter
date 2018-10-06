@@ -1,4 +1,6 @@
 import OptionsSync from 'webext-options-sync';
+import {detect} from 'detect-browser';
+const b = detect();
 
 import {featuresDefaultValues} from './features';
 
@@ -20,12 +22,14 @@ optionsSync.getAll().then(options => {
 	optionsSync.setAll(newOptions);
 });
 
-// Fix the extension when right-click saving a tweet image
-browser.downloads.onDeterminingFilename.addListener((item, suggest) => {
-	suggest({
-		filename: item.filename.replace(/\.(jpg|png)_(large|orig)$/, '.$1')
+if (b.name === 'chrome'){
+	// Fix the extension when right-click saving a tweet image
+	browser.downloads.onDeterminingFilename.addListener((item, suggest) => {
+		suggest({
+			filename: item.filename.replace(/\.(jpg|png)_(large|orig)$/, '.$1')
+		});
 	});
-});
+}
 
 browser.webRequest.onBeforeRequest.addListener(({url}) => {
 	if (url.endsWith(':large')) {
